@@ -1,0 +1,62 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+#map {
+    height: 90vh;
+    width: 100%;
+}
+
+
+/* Cluster text color and style */
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+    color: white; /* Set text color to white */
+    font-weight: bold;
+}
+
+.custom-cluster {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white; /* Text color for cluster numbers */
+    font-weight: bold;
+    border: 2px solid white; /* White border for contrast */
+}
+
+/* Define colors for each category with transparency */
+.cluster-finance {
+    background-color: rgba(0, 149, 211, 0.85);
+}
+
+.cluster-fleets {
+    background-color: rgba(92, 196, 189, 0.85);
+}
+
+.cluster-knowledge {
+    background-color: rgba(156, 110, 176, 0.85); 
+}
+
+.cluster-manufacturers {
+    background-color: rgba(209, 212, 57, 0.85);
+}
+
+.cluster-other {
+    background-color: rgba(255, 158, 24, 0.85); 
+}
+
+.cluster-subnational {
+    background-color: rgba(239, 78, 0, 0.85); 
+}
+
+.cluster-utilities {
+    background-color: rgba(118, 188, 33, 0.85); 
+}
+
+/* Default color */
+.cluster-default {
+    background-color: rgba(204, 204, 204, 0.85); 
+}
