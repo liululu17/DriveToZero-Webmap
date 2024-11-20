@@ -44,16 +44,12 @@ body, html {
     background-color: rgba(209, 212, 57, 0.85);
 }
 
-.cluster-other {
-    background-color: rgba(255, 158, 24, 0.85); 
-}
-
 .cluster-subnational {
     background-color: rgba(239, 78, 0, 0.85); 
 }
 
 .cluster-utilities {
-    background-color: rgba(118, 188, 33, 0.85); 
+    background-color: rgba(255, 158, 24, 0.85); 
 }
 
 /* Default color */
