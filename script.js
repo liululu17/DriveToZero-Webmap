@@ -189,7 +189,7 @@ fetch('endorser.geojson')
                     weight: 1,
                     opacity: 1,
                     fillOpacity: 1
-                }).bindPopup(`<strong>Name:</strong> ${feature.properties['Name']}<br><strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a>`);
+                }).bindPopup(`<strong>Name:</strong> ${feature.properties['Name']}<br><strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a><br><strong>Country:</strong> ${feature.properties['Nationality']}<br><strong>City:</strong> ${feature.properties['City']}`);
             }
         }).addTo(endorserCluster);
     })
@@ -220,6 +220,7 @@ const endorserCategories = [
 
 // Object to store separate category layers
 const endorserCategoryLayers = {};
+let endorserCategoryLayersWithColors = {}; // To store layers with color-coded labels
 
 // Load endorsers GeoJSON and create category layers
 fetch('endorser.geojson')
@@ -240,13 +241,17 @@ fetch('endorser.geojson')
                         opacity: 1,
                         fillOpacity: 1
                     }).bindPopup(`<strong>Name:</strong> ${feature.properties.Name}<br>
-                                  <strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a>`);
+                                  <strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a><br><strong>Country:</strong> ${feature.properties['Nationality']}<br><strong>City:</strong> ${feature.properties['City']}`);
                 }
             });
 
             // Store the layer in the object and assign to vectorPane
             categoryLayer.options.pane = 'vectorPane';
             endorserCategoryLayers[category] = categoryLayer; // Add to the layers object
+
+            // Add HTML with color for the layer control
+            const labelWithColor = `<i style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></i>${category}`;
+            endorserCategoryLayersWithColors[labelWithColor] = categoryLayer; // Add to the layers with colors
         });
 
         // Add layer control
@@ -254,16 +259,19 @@ fetch('endorser.geojson')
             {
                 'Countries': signedCountriesLayer,
                 'GDP': gdpLayer,
-                'Total ZE MHDV Sale': mhdvLayer
+                '2023 ZE MHDV Sale': mhdvLayer
             },
             {
-                'Endorsers (Clustered)': endorserCluster,
-                ...endorserCategoryLayers // Spread the category layers as optional overlays
-            }
+                'All Endorsers': endorserCluster,
+                ...endorserCategoryLayersWithColors // Spread the category layers as optional overlays
+            },
+            { collapsed: false }
         ).addTo(map);
     })
     .catch(error => console.log("Error loading endorsers GeoJSON data:", error));
 
+
+    
 // Add a combined legend for Endorsers and GDP
 const legend = L.control({ position: 'bottomright' });
 
@@ -272,25 +280,11 @@ legend.onAdd = function () {
     div.style.backgroundColor = 'rgba(255, 255, 255, 0.6)'; // 50% white background
     div.style.padding = '10px';
     div.style.borderRadius = '8px';
-
-    // Endorsers Section
-    const categories = [
-        { color: '#0095D3', label: 'Finance Institutions' },
-        { color: '#5CC4BD', label: 'Fleet Owners and Operators' },
-        { color: '#9C6EB0', label: 'Knowledge Partners and Other Endorsers' },
-        { color: '#D1D439', label: 'Manufacturers and Suppliers' },
-        { color: '#EF4E00', label: 'Subnational Governments' },
-        { color: '#ff9e18', label: 'Utility and Infrastructure Providers' }
-    ];
-    
-    div.innerHTML += '<strong>Endorsers</strong><br>';
-    categories.forEach(cat => {
-        div.innerHTML += `<i style="background:${cat.color}; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ${cat.label}<br>`;
-    });
+    div.style.fontSize = '10px';
 
     // GDP Section
     const gdpGrades = [520000000, 12332500000, 77022500000, 90867500000, 245838000000, 331112500000, 511432500000, 1025602500000, 27360000000000];
-    div.innerHTML += '<br><strong>GDP (Billions)</strong><br>';
+    div.innerHTML += '<strong>Legend<br><br><strong>GDP (Billions)</strong><br>';
     for (let i = 0; i < gdpGrades.length; i++) {
         const color = getColor(gdpGrades[i] + 1);
         div.innerHTML += `<i style="background:${color}; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ${(gdpGrades[i] / 1e9).toFixed(1)}${gdpGrades[i + 1] ? `&ndash;${(gdpGrades[i + 1] / 1e9).toFixed(1)}` : '+'}B<br>`;
@@ -317,19 +311,24 @@ legend.onAdd = function () {
 
 legend.addTo(map);
 
+
 // Define a custom control for the title and statistics
 const titleControl = L.control({ position: 'bottomleft' });
 
 titleControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'info title'); // Create a div for the title and stats
     div.style.backgroundColor = 'rgba(255, 255, 255, 0.6)'; // Semi-transparent white background
+    div.style.margin = '0';
     div.style.padding = '10px';
     div.style.borderRadius = '8px';
     div.style.lineHeight = '1.5';
-    div.style.fontSize = '14px';
+    div.style.fontSize = '12px';
+    div.style.display = 'flex';
+    div.style.flexDirection = 'column';
+    div.style.width = 'auto';
 
     // Set the title
-    let html = '<strong>Global MOU Countries and Endorsers</strong><br><br>';
+    let html = '<strong>Global MOU Countries and Endorsers</strong><br>';
 
     // Initialize counters
     let numCountries = 0;
@@ -354,7 +353,7 @@ titleControl.onAdd = function () {
     .then(([countriesData, endorsersData]) => {
         // Calculate the number of countries
         numCountries = countriesData.features.length;
-        html += `Number of countries: ${numCountries}<br>`;
+        html += `${numCountries} Countries<br>`;
 
         // Calculate the number of endorsers and group by category
         totalEndorsers = endorsersData.features.length;
@@ -366,7 +365,7 @@ titleControl.onAdd = function () {
         });
 
         // Add total endorsers to HTML
-        html += `Number of endorsers: ${totalEndorsers}<br>`;
+        html += ` ${totalEndorsers} Endorsers<br><br>`;
 
         // Update the div with the stats
         div.innerHTML = html;
@@ -374,20 +373,24 @@ titleControl.onAdd = function () {
         // Add a bar graph
         const graphDiv = document.createElement('div'); // Container for the graph
         graphDiv.style.marginTop = '10px';
-        graphDiv.style.width = '100%';
-        graphDiv.style.height = '150px';
+        graphDiv.style.width = '120%';
+
+        // Dynamically adjust the height of the graph container and parent div
+        const graphHeight = 180; // Adjust height for bars and labels
+        graphDiv.style.height = `${graphHeight}px`;
+        div.style.height = `auto`; // Let the div adjust dynamically to its content
+
         div.appendChild(graphDiv);
 
         // Create the bar graph
-        createBarGraph(graphDiv, endorserCounts, categoryColors);
+        createBarGraph(graphDiv, endorserCounts, categoryColors, graphHeight);
     })
     .catch(error => console.log("Error loading GeoJSON files:", error));
 
     return div;
 };
 
-// Function to create a bar graph for endorsers by category
-function createBarGraph(container, data, colors) {
+function createBarGraph(container, data, colors, graphHeight) {
     // Prepare data for the graph
     const labels = Object.keys(data);
     const values = Object.values(data);
@@ -395,33 +398,56 @@ function createBarGraph(container, data, colors) {
     // Create an SVG element for the graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '150');
+    svg.setAttribute('height', `${graphHeight}`); // Dynamically use the height
     container.appendChild(svg);
 
     // Define dimensions
-    const barWidth = 100 / labels.length; // Percentage width for each bar
+    const barWidth = 80 / labels.length; // Percentage width for each bar
     const maxValue = Math.max(...values);
+    const paddingTop = 20; // Add padding to ensure labels are not cut off
 
     // Draw bars
     labels.forEach((label, index) => {
-        const barHeight = (values[index] / maxValue) * 100; // Height proportional to max value
+        const barHeight = (values[index] / maxValue) * (graphHeight - 50 - paddingTop); // Adjust for padding
+
+        // Calculate the x-position for the bar and label
+        const barX = index * barWidth; // Starting position of the bar
+        const labelX = barX + (barWidth - 4) / 2; // Center of the bar
 
         // Create a bar
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', `${index * barWidth}%`);
-        rect.setAttribute('y', `${100 - barHeight}%`);
+        rect.setAttribute('x', `${barX}%`);
+        rect.setAttribute('y', `${graphHeight - barHeight - 30}px`); // Adjust y-position to account for labels
         rect.setAttribute('width', `${barWidth - 5}%`); // Spacing between bars
-        rect.setAttribute('height', `${barHeight}%`);
+        rect.setAttribute('height', `${barHeight}px`);
         rect.setAttribute('fill', colors[label] || '#808080'); // Default to grey if no color found
         svg.appendChild(rect);
 
-        // Add a label below each bar
+        // Add a label above each bar with category name on one line and number on the next
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', `${index * barWidth + barWidth / 2}%`);
-        text.setAttribute('y', '140'); // Below the graph
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('font-size', '10');
-        text.textContent = label; // Shortened label
+        text.setAttribute('x', `${labelX}%`);
+        text.setAttribute('y', `${Math.max(graphHeight - barHeight - 50, paddingTop)}px`); // Ensure it stays within bounds
+        text.setAttribute('text-anchor', 'middle'); // Center the text horizontally
+        text.setAttribute('font-size', '8');
+        text.setAttribute('fill', '#000'); // Black text color
+
+        // Create the first line (category name)
+        const tspan1 = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan1.setAttribute('x', `${labelX}%`);
+        tspan1.setAttribute('dy', '0'); // First line at the current position
+        tspan1.textContent = label;
+
+        // Create the second line (number of endorsers)
+        const tspan2 = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan2.setAttribute('x', `${labelX}%`);
+        tspan2.setAttribute('dy', '1.2em'); // Move down for the second line
+        tspan2.textContent = values[index];
+
+        // Append tspan elements to the text element
+        text.appendChild(tspan1);
+        text.appendChild(tspan2);
+
+        // Append the text element to the SVG
         svg.appendChild(text);
     });
 }

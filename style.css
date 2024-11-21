@@ -56,3 +56,32 @@ body, html {
 .cluster-default {
     background-color: rgba(204, 204, 204, 0.85); 
 }
+
+/* Make the Leaflet layer control always visible */
+.leaflet-control-layers {
+    display: block !important; /* Ensure the control is always displayed */
+    top: 10px; /* Position at the top-right */
+    right: 10px;
+    opacity: 1; /* Fully visible */
+    pointer-events: auto; /* Ensure it is interactive */
+}
+
+.leaflet-control-layers label {
+    font-size: 10px; /* Set the font size to 12px */
+}
+
+.leaflet-control-layers-expanded {
+    max-height: 250px; /* Increase or limit the height if needed */
+    overflow-y: auto;  /* Add scrolling for better usability */
+    border: 2px solid #ccc; /* Optional: Add a border for better visibility */
+    background-color: white; /* Optional: Add a background color */
+    padding: 5px; /* Optional: Add some padding */
+}
+
+.info.legend {
+    max-height: 200px; /* Limit the height of the legend */
+    overflow-y: auto;  /* Add vertical scrolling for overflow content */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    padding-right: 8px; /* Add padding to prevent overlap with scrollbar */
+    box-sizing: border-box; /* Ensure padding doesn't increase total width */
+}
