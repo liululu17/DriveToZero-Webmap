@@ -82,7 +82,7 @@ function signedCountryStyle(feature) {
         opacity: 1,
         color: 'white',
         dashArray: '3',
-        fillOpacity: 0.8
+        fillOpacity: 0.85
     };
 }
 
