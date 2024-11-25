@@ -82,7 +82,7 @@ function signedCountryStyle(feature) {
         opacity: 1,
         color: 'white',
         dashArray: '3',
-        fillOpacity: 0.85
+        fillOpacity: 0.8
     };
 }
 
@@ -189,7 +189,7 @@ fetch('endorser.geojson')
                     weight: 1,
                     opacity: 1,
                     fillOpacity: 1
-                }).bindPopup(`<strong>Name:</strong> ${feature.properties['Name']}<br><strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a><br><strong>Country:</strong> ${feature.properties['Nationality']}<br><strong>City:</strong> ${feature.properties['City']}`);
+                }).bindPopup(`<strong>Name:</strong> ${feature.properties['Name']}<br><strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a><br><strong>City:</strong> ${feature.properties['City']}<br><strong>Country:</strong> ${feature.properties['Nationality']}`);
             }
         }).addTo(endorserCluster);
     })
@@ -210,23 +210,23 @@ mhdvLayer.options.pane = 'vectorPane';
 
 // Define categories and their colors
 const endorserCategories = [
-    { category: 'Finance', color: '#0095D3' },
-    { category: 'Fleets and Users', color: '#5CC4BD' },
-    { category: 'Knowledge Partners and Other Endorsers', color: '#9C6EB0' },
-    { category: 'Manufacturers and Suppliers', color: '#D1D439' },
-    { category: 'Subnational Governments', color: '#EF4E00' },
-    { category: 'Utilities and Infrastructure Providers', color: '#ff9e18' }
+    { category: 'Finance', color: '#0095D3', displayName: 'Finance Institutions' },
+    { category: 'Fleets and Users', color: '#5CC4BD', displayName: 'Fleet Owners and Operators' },
+    { category: 'Knowledge Partners and Other Endorsers', color: '#9C6EB0', displayName: 'Knowledge Partners and Other Endorsers' },
+    { category: 'Manufacturers and Suppliers', color: '#D1D439', displayName: 'Manufacturers and Suppliers' },
+    { category: 'Subnational Governments', color: '#EF4E00', displayName: 'Subnational Governments' },
+    { category: 'Utilities and Infrastructure Providers', color: '#ff9e18', displayName: 'Utilities and Infrastructure Providers' }
 ];
 
 // Object to store separate category layers
 const endorserCategoryLayers = {};
 let endorserCategoryLayersWithColors = {}; // To store layers with color-coded labels
 
-// Load endorsers GeoJSON and create category layers
+// Load endorsers GeoJSON and create category layers 
 fetch('endorser.geojson')
     .then(response => response.json())
     .then(data => {
-        endorserCategories.forEach(({ category, color }) => {
+        endorserCategories.forEach(({ category, color, displayName }) => {
             // Create a separate layer for each category
             const categoryLayer = L.geoJson(data, {
                 filter: function (feature) {
@@ -241,7 +241,7 @@ fetch('endorser.geojson')
                         opacity: 1,
                         fillOpacity: 1
                     }).bindPopup(`<strong>Name:</strong> ${feature.properties.Name}<br>
-                                  <strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a><br><strong>Country:</strong> ${feature.properties['Nationality']}<br><strong>City:</strong> ${feature.properties['City']}`);
+                                  <strong>Website:</strong> <a href="${feature.properties.Website}" target="_blank">${feature.properties.Website}</a><br><strong>City:</strong> ${feature.properties['City']}<br><strong>Country:</strong> ${feature.properties['Nationality']}`);
                 }
             });
 
@@ -249,17 +249,17 @@ fetch('endorser.geojson')
             categoryLayer.options.pane = 'vectorPane';
             endorserCategoryLayers[category] = categoryLayer; // Add to the layers object
 
-            // Add HTML with color for the layer control
-            const labelWithColor = `<i style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></i>${category}`;
+            // Add HTML with color for the layer control, using displayName
+            const labelWithColor = `<i style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></i>${displayName}`;
             endorserCategoryLayersWithColors[labelWithColor] = categoryLayer; // Add to the layers with colors
         });
 
         // Add layer control
         L.control.layers(
             {
-                'Countries': signedCountriesLayer,
-                'GDP': gdpLayer,
-                '2023 ZE MHDV Sale': mhdvLayer
+                'Signed Countries': signedCountriesLayer,
+                'GDP of Signed Countries': gdpLayer,
+                '2023 ZE MHDV Sale of Signed Countries': mhdvLayer
             },
             {
                 'All Endorsers': endorserCluster,
@@ -280,11 +280,21 @@ legend.onAdd = function () {
     div.style.backgroundColor = 'rgba(255, 255, 255, 0.6)'; // 50% white background
     div.style.padding = '10px';
     div.style.borderRadius = '8px';
-    div.style.fontSize = '10px';
+    div.style.fontSize = '12px';
+
+    // Total-ZE-MHDV Section
+    const mhdvGrades = [1, 64.75, 133.5, 567.75, 25378];
+    div.innerHTML += '<strong>Legend<br><br><strong>Total ZE MHDV Sale</strong><br>';
+    // Add a color for 'NaN' values
+    div.innerHTML += `<i style="background:#808080; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></i> No Data<br>`;
+    for (let i = 0; i < mhdvGrades.length; i++) {
+        const color = getMHDVColor(mhdvGrades[i] + 1);
+        div.innerHTML += `<i style="background:${color}; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ${mhdvGrades[i]}${mhdvGrades[i + 1] ? `&ndash;${mhdvGrades[i + 1]}` : '+'}<br>`;
+    }
 
     // GDP Section
     const gdpGrades = [520000000, 12332500000, 77022500000, 90867500000, 245838000000, 331112500000, 511432500000, 1025602500000, 27360000000000];
-    div.innerHTML += '<strong>Legend<br><br><strong>GDP (Billions)</strong><br>';
+    div.innerHTML += '<br><strong>GDP (Billions)</strong><br>';
     for (let i = 0; i < gdpGrades.length; i++) {
         const color = getColor(gdpGrades[i] + 1);
         div.innerHTML += `<i style="background:${color}; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ${(gdpGrades[i] / 1e9).toFixed(1)}${gdpGrades[i + 1] ? `&ndash;${(gdpGrades[i + 1] / 1e9).toFixed(1)}` : '+'}B<br>`;
@@ -293,17 +303,6 @@ legend.onAdd = function () {
     // Signed Countries Section
     div.innerHTML += '<br><strong>Signed Countries</strong><br>';
     div.innerHTML += `<i style="background:#004789; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> Signed Countries<br>`;
-
-    // Total-ZE-MHDV Section
-    const mhdvGrades = [1, 64.75, 133.5, 567.75, 25378];
-    div.innerHTML += '<br><strong>Total ZE MHDV</strong><br>';
-    for (let i = 0; i < mhdvGrades.length; i++) {
-        const color = getMHDVColor(mhdvGrades[i] + 1);
-        div.innerHTML += `<i style="background:${color}; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ${mhdvGrades[i]}${mhdvGrades[i + 1] ? `&ndash;${mhdvGrades[i + 1]}` : '+'}<br>`;
-    }
-
-    // Add a color for 'NaN' values
-    div.innerHTML += `<i style="background:#808080; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> No Data<br>`;
 
     return div;
 };
