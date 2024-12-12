@@ -67,11 +67,11 @@ body, html {
 }
 
 .leaflet-control-layers label {
-    font-size: 12px; /* Set the font size to 12px */
+    font-size: 10px; /* Set the font size to 12px */
 }
 
 .leaflet-control-layers-expanded {
-    max-height: 220px; /* Increase or limit the height if needed */
+    max-height: 200px; /* Increase or limit the height if needed */
     overflow-y: auto;  /* Add scrolling for better usability */
     border: 2px solid #ccc; /* Optional: Add a border for better visibility */
     background-color: white; /* Optional: Add a background color */
@@ -79,7 +79,7 @@ body, html {
 }
 
 .info.legend {
-    font-size: 10px;
+    font-size: 5px;
     max-height: 200px; /* Limit the height of the legend */
     overflow-y: auto;  /* Add vertical scrolling for overflow content */
     overflow-x: hidden; /* Prevent horizontal scrolling */

@@ -1,5 +1,5 @@
 // Initialize the map
-const map = L.map('map').setView([25, 15], 3); // Set initial view
+const map = L.map('map').setView([25, 15], 2); // Set initial view
 
 // Create custom panes
 map.createPane('basePane').style.zIndex = 100;
@@ -286,21 +286,23 @@ const regionControl = L.control({ position: 'topright' });
 regionControl.onAdd = function () {
     const div = L.DomUtil.create('div', 'info region-control');
     div.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-    div.style.padding = '10px';
-    div.style.borderRadius = '8px';
-    div.style.boxShadow = '0 0 5px rgba(0,0,0,0.3)';
+    div.style.padding = '5px'; // Reduce padding
+    div.style.borderRadius = '5px'; // Reduce border radius
+    div.style.boxShadow = '0 0 3px rgba(0,0,0,0.2)'; // Lighter shadow
+    div.style.fontSize = '10px'; // Smaller font size
 
     div.innerHTML = '<strong>Zoom to Region</strong><br>';
     Object.keys(regionBounds).forEach(region => {
         const button = document.createElement('button');
         button.innerHTML = region;
-        button.style.margin = '5px';
-        button.style.padding = '5px 10px';
+        button.style.margin = '3px'; // Smaller margin
+        button.style.padding = '3px 6px'; // Smaller padding
         button.style.border = 'none';
         button.style.background = '#0078D4';
         button.style.color = 'white';
         button.style.cursor = 'pointer';
-        button.style.borderRadius = '4px';
+        button.style.borderRadius = '3px'; // Smaller border radius
+        button.style.fontSize = '10px'; // Smaller font size
 
         button.onclick = function () {
             map.fitBounds(regionBounds[region]);
@@ -324,7 +326,7 @@ legend.onAdd = function () {
     div.style.backgroundColor = 'rgba(255, 255, 255, 0.6)'; // 50% white background
     div.style.padding = '10px';
     div.style.borderRadius = '8px';
-    div.style.fontSize = '12px';
+    div.style.fontSize = '10px';
 
     // Total-ZE-MHDV Section
     const mhdvGrades = [1, 64.75, 133.5, 567.75, 25378];
@@ -507,5 +509,6 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.
 
 // Add the Geocoder to the map
 L.Control.geocoder({
-    defaultMarkGeocode: true
+    defaultMarkGeocode: true,
+    position: 'topleft'
 }).addTo(map);
