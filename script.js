@@ -272,10 +272,10 @@ fetch('endorser.geojson')
 
 // Define bounding boxes for regions
 const regionBounds = {
-    'North America': [[24.4, -125.0], [49.4, -67.0]],
+    'North America': [[20, -125.0], [52, -67.0]],
     'South America': [[-56.0, -81.0], [12.0, -35.0]],
-    'Europe': [[35.0, -25.0], [72.0, 40.0]],
-    'East Asia': [[10.0, 95.0], [50.0, 150.0]],
+    'Europe': [[33.0, -25.0], [70.0, 40.0]],
+    'Asia': [[12.0, 85.0], [52.0, 130.0]],
     'Africa': [[-35.0, -17.0], [37.0, 52.0]],
     'Oceania': [[-50.0, 110.0], [0.0, 180.0]]
 };
